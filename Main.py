@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
-#GENDERIZE_API_KEY = "65fe197d8b35dd355b44290d3bc0266d"
 BASE_URL = "https://api.genderize.io"
 
 app = FastAPI()
@@ -65,4 +64,3 @@ async def read_gender(name: str):
 @app.get("/test-cors")
 async def test_cors():
     return {"message": "CORS is working!"}
-#apikey 65fe197d8b35dd355b44290d3bc0266d
