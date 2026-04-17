@@ -9,20 +9,16 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permet toutes les origines
+    allow_origins=["*"], 
     allow_credentials=True,
-    allow_methods=["*"],  # Permet toutes les méthodes (GET, POST, etc.)
-    allow_headers=["*"],  # Permet tous les headers
+    allow_methods=["*"], 
+    allow_headers=["*"],
 )
 
 
 @app.get("/")
 def read_root():
-    return {"Hello" : "World"}
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return {"item_id" : item_id, "q" : q }
+    return {"App" : "Genderize api consume"}
 
 @app.get("/api/classify")
 async def read_gender(name: str = Query(..., min_lenght=1)):
@@ -33,7 +29,7 @@ async def read_gender(name: str = Query(..., min_lenght=1)):
         )
     
     async with httpx.AsyncClient() as client:
-        response = await client.get(\
+        response = await client.get(
             BASE_URL,
             params={"name": name}
         )
