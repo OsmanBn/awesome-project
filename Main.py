@@ -23,11 +23,11 @@ def read_root():
 @app.get("/api/classify")
 async def read_gender(name: str = Query(..., min_length=1)):
     if (not name or not name.strip()):
-        """raise HTTPException(
+        raise HTTPException(
             status_code=400,
             detail={"status": "error", "message": "Name cannot be empty"}
-        )"""
-        return {"status": "error", "message": "Name cannot be empty"}
+        )
+        #return {"status": "error", "message": "Name cannot be empty"}
     
     async with httpx.AsyncClient() as client:
         response = await client.get(
