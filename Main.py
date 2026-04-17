@@ -71,7 +71,4 @@ async def read_gender(name: str = Query(..., min_length=1)):
         }
     }
 
-# Pour tester CORS
-@app.get("/test-cors")
-async def test_cors():
-    return {"message": "CORS is working!"}
+
