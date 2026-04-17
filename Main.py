@@ -1,0 +1,64 @@
+from fastapi import FastAPI, HTTPException, Query
+from datetime import datetime, timezone
+from fastapi.middleware.cors import CORSMiddleware
+import httpx
+
+BASE_URL = "https://api.genderize.io"
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"], 
+    allow_headers=["*"],
+)
+
+
+@app.get("/")
+def read_root():
+    return {"App" : "Genderize api consume"}
+
+@app.get("/api/classify")
+async def read_gender(name: str):
+    if (not name or not name.strip()):
+        raise HTTPException(
+            status_code=400,
+            detail={"status": "error", "message": "Name cannot be empty"}
+        )
+        #return {"status": "error", "message": "Name cannot be empty"}
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            BASE_URL,
+            params={"name": name}
+        )
+        
+        status_code = response.status_code
+
+        if status_code in [400, 422, 500, 502]:
+            return {"status":"error", "message": response.text}
+
+        gender = response.json().get("gender")
+        probability = response.json().get("probability")
+        sample_size = response.json().get("count")
+
+        if gender is None or  sample_size == 0 :
+            return {"status": "error", "message": "No prediction available for the provided name"}
+    
+        is_confident = (probability>=0.7) and (sample_size>100)
+        processed_at = datetime.now(timezone.utc).isoformat()
+        
+
+    return {
+        "status": "success",
+        "data": {
+            "name": name,
+            "gender": gender, 
+            "probability":probability, 
+            "sample_size":sample_size, 
+            "is_confident": is_confident, 
+            "processed_at": processed_at
+        }
+    }
