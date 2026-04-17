@@ -52,7 +52,7 @@ async def read_gender(name: str = Query(..., min_lenght=1)):
         if gender is None or  sample_size == 0 :
             raise HTTPException(
                 status_code: 404,
-                detail:{"status": "error", "message": "No prediction available for the provided name"
+                detail:{"status": "error", "message": "No prediction available for the provided name"}
             )
     
         is_confident = (probability>=0.7) and (sample_size>100)
