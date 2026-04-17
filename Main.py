@@ -21,7 +21,7 @@ def read_root():
     return {"App" : "Genderize api consume"}
 
 @app.get("/api/classify")
-async def read_gender(name: str = Query(..., min_lenght=1)):
+async def read_gender(name: str = Query(..., min_length=1)):
     if (not name or not name.strip()):
         raise HTTPException(
             status_code=400,
