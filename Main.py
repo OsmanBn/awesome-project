@@ -42,6 +42,7 @@ async def read_gender(name: str = Query(..., min_lenght=1)):
 
         if status_code in [400, 422, 500, 502]:
             raise HTTPException(
+                status_code: status_code,
                 detail: {"status":"error", "message": response.text}
             )
 
