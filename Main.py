@@ -38,8 +38,6 @@ async def read_gender(name: str):
         probability = response.json().get("probability")
         sample_size = response.json().get("count")
 
-        if gender is None or  sample_size == 0 :
-            return {"status": "error", "message": "No prediction available for the provided name"}
     
         is_confident = (probability>=0.7) and (sample_size>100)
         processed_at = datetime.now(timezone.utc).isoformat()
