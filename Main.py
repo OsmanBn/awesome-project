@@ -23,10 +23,11 @@ def read_root():
 @app.get("/api/classify")
 async def read_gender(name: str = Query(..., min_length=1)):
     if (not name or not name.strip()):
-        raise HTTPException(
+        """raise HTTPException(
             status_code=400,
             detail={"status": "error", "message": "Name cannot be empty"}
-        )
+        )"""
+        return {"status": "error", "message": "Name cannot be empty"}
     
     async with httpx.AsyncClient() as client:
         response = await client.get(
@@ -37,20 +38,22 @@ async def read_gender(name: str = Query(..., min_length=1)):
         status_code = response.status_code
 
         if status_code in [400, 422, 500, 502]:
-            raise HTTPException(
+            """raise HTTPException(
                 status_code= response.status_code,
                 detail= {"status":"error", "message": response.text}
-            )
+            )"""
+            return {"status":"error", "message": response.text}
 
         gender = response.json().get("gender")
         probability = response.json().get("probability")
         sample_size = response.json().get("count")
 
         if gender is None or  sample_size == 0 :
-            raise HTTPException(
+            """raise HTTPException(
                 status_code= 404,
                 detail={"status": "error", "message": "No prediction available for the provided name"}
-            )
+            )"""
+            return {"status": "error", "message": "No prediction available for the provided name"}
     
         is_confident = (probability>=0.7) and (sample_size>100)
         processed_at = datetime.now(timezone.utc).isoformat()
