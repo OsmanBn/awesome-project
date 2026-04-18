@@ -1,11 +1,11 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException
 from datetime import datetime, timezone
-from fastapi.middleware.cors import CORSMiddleware
 import httpx
-
-BASE_URL = "https://api.genderize.io"
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+api_url = "https://api.genderize.io"
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,42 +15,45 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get('/')
+def root():
+    return {"app":"Racine"}
 
-@app.get("/")
-def read_root():
-    return {"App" : "Genderize api consume"}
-
-@app.get("/api/classify")
-async def read_gender(name: str):
+@app.get('/api/classify')
+async def get_gender(name : str):
+    if not name or not name.strip:
+        message = "Bad Request"
+        raise HTTPException(
+            status_code=400,
+            detail={ "status": "error", "message": message }
+        )
     
+
     async with httpx.AsyncClient() as client:
         response = await client.get(
-            BASE_URL,
-            params={"name": name}
+            api_url,
+            params={"name":name}
         )
+        data = response.json()
+
+        gender = data.get("gender")
+        sample_size = data.get("count")
+
+        if gender is None or sample_size==0:
+            return { "status": "error", "message": "No prediction available for the provided name" }
         
-        status_code = response.status_code
-
-        if status_code in [400, 422, 500, 502]:
-            return {"status":"error", "message": response.text}
-
-        gender = response.json().get("gender")
-        probability = response.json().get("probability")
-        sample_size = response.json().get("count")
-
-    
-        is_confident = (probability>=0.7) and (sample_size>100)
-        processed_at = datetime.now(timezone.utc).isoformat()
-        
+        probability = data.get("probability")
+        is_confident = probability >= 0.7 and sample_size >= 100
+        processed_at = datetime.now(timezone.utc).isoformat(timespec='seconds').replace("+00:00", "Z")
 
     return {
-        "status": "success",
-        "data": {
-            "name": name,
-            "gender": gender, 
-            "probability":probability, 
-            "sample_size":sample_size, 
-            "is_confident": is_confident, 
-            "processed_at": processed_at
+        "status":"success",
+        "data":{
+            "name":name,
+            "gende":gender,
+            "probability":probability,
+            "sample_size":sample_size,
+            "is_confident":is_confident,
+            "processed_at":processed_at
         }
     }
