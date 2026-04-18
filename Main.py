@@ -40,6 +40,7 @@ async def get_gender(name : str):
         sample_size = data.get("count")
 
         if gender is None or sample_size==0:
+            print(f"genre vaut {gender}")
             return { "status": "error", "message": "No prediction available for the provided name" }
         
         probability = data.get("probability")
