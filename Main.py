@@ -39,22 +39,23 @@ async def get_gender(name : str):
         gender = data.get("gender")
         sample_size = data.get("count")
 
-        if gender=="null" or sample_size==0:
+        
+        if not gender is None and sample_size!=0:
+            probability = data.get("probability")
+            is_confident = probability >= 0.7 and sample_size >= 100
+            processed_at = datetime.now(timezone.utc).isoformat(timespec='seconds').replace("+00:00", "Z")
+            return {
+            "status":"success",
+            "data":{
+                "name":name,
+                "gender":gender,
+                "probability":probability,
+                "sample_size":sample_size,
+                "is_confident":is_confident,
+                "processed_at":processed_at
+            }
+        }
+        else:        
             print(f"genre vaut {gender}")
             return { "status": "error", "message": "No prediction available for the provided name" }
-        
-        probability = data.get("probability")
-        is_confident = probability >= 0.7 and sample_size >= 100
-        processed_at = datetime.now(timezone.utc).isoformat(timespec='seconds').replace("+00:00", "Z")
-
-    return {
-        "status":"success",
-        "data":{
-            "name":name,
-            "gende":gender,
-            "probability":probability,
-            "sample_size":sample_size,
-            "is_confident":is_confident,
-            "processed_at":processed_at
-        }
-    }
+    
